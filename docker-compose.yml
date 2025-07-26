@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongo:
+    image: mongo:6.0
+    container_name: fullsco_mongo
+    environment:
+      MONGO_INITDB_DATABASE: fullsco_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - fullsco_network
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    build: .
+    container_name: fullsco_backend
+    environment:
+      NODE_ENV: development
+      MONGODB_URI: mongodb://mongo:27017/
+      MONGODB_DB: fullsco_db
+      PORT: 5000
+      JWT_SECRET: your-super-secret-jwt-key-here
+      SESSION_SECRET: your-super-secret-session-key-here
+      CORS_ORIGIN: http://localhost:3000
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./uploads:/app/uploads
+      - ./src:/app/src
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - fullsco_network
+    command: npm run dev
+
+volumes:
+  mongo_data:
+
+networks:
+  fullsco_network:
+    driver: bridge 
