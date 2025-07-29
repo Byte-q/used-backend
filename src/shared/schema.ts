@@ -8,7 +8,7 @@ export interface User {
   password: string;
   email: string;
   fullName: string;
-  imageUrl: string;
+  imageUrl?: string;
   role: string;
   createdAt: Date;
 }
@@ -18,7 +18,7 @@ export const userSchema = z.object({
   password: z.string(),
   email: z.string().email(),
   fullName: z.string(),
-  imageUrl: z.string(),
+  imageUrl: z.string().optional(),
   role: z.string().default('user'),
   createdAt: z.date().default(new Date()),
   updatedAt: z.date().default(new Date()),
